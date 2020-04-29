@@ -5,11 +5,14 @@ PWD := $(shell pwd)
 
 .PHONY: build clean  
 
-build:
+build: sneaky_process
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules  
 
+sneaky_process:
+	gcc -Werror -Wall -O3 -o sneaky_process sneaky_process.c
+
 clean:
-	rm -rf *.o *~ core .depend .*.cmd *.order *.symvers *.ko *.mod.c 
+	rm -rf *.o *~ core .depend .*.cmd *.order *.symvers *.ko *.mod.c sneaky_process 
 else  
 
 $(info Building with KERNELRELEASE = ${KERNELRELEASE}) 

