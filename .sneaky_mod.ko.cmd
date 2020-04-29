@@ -1,0 +1,1 @@
+cmd_/home/lizhu/Desktop/sneaky-attack-program/sneaky_mod.ko := ld -r -m elf_x86_64  -z max-page-size=0x200000 -T ./scripts/module-common.lds --build-id  -o /home/lizhu/Desktop/sneaky-attack-program/sneaky_mod.ko /home/lizhu/Desktop/sneaky-attack-program/sneaky_mod.o /home/lizhu/Desktop/sneaky-attack-program/sneaky_mod.mod.o ;  true

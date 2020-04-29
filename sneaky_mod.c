@@ -102,4 +102,4 @@ static void exit_sneaky_module(void)
 
 module_init(initialize_sneaky_module);  // what's called upon loading 
 module_exit(exit_sneaky_module);        // what's called upon unloading  
-
+MODULE_LICENSE("Dual MIT/GPL");
